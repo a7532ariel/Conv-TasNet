@@ -8,6 +8,7 @@ import os
 
 import librosa
 import torch
+import numpy as np
 
 from data import EvalDataLoader, EvalDataset
 from conv_tasnet import ConvTasNet
@@ -51,7 +52,7 @@ def separate(args):
     os.makedirs(args.out_dir, exist_ok=True)
 
     def write(inputs, filename, sr=args.sample_rate):
-        librosa.output.write_wav(filename, inputs, sr)# norm=True)
+        librosa.output.write_wav(filename, inputs, sr, norm=True)
 
     with torch.no_grad():
         for (i, data) in enumerate(eval_loader):
@@ -70,7 +71,10 @@ def separate(args):
                                         os.path.basename(filename).strip('.wav'))
                 write(mixture[i], filename + '.wav')
                 C = flat_estimate[i].shape[0]
+                m = np.sum(np.abs(mixture[i]))
                 for c in range(C):
+                    p = np.sum(np.abs(flat_estimate[i][c]))
+                    flat_estimate[i][c] = flat_estimate[i][c] / p * m
                     write(flat_estimate[i][c], filename + '_s{}.wav'.format(c+1))
 
 

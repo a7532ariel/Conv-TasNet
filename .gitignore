@@ -6,3 +6,6 @@ tools/create-speaker-mixtures
 
 nohup.out
 __pycache__
+
+min/
+egs/wsj0/run.sh
